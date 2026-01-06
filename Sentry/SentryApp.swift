@@ -9,9 +9,22 @@ import SwiftUI
 
 @main
 struct SentryApp: App {
+    
+    @StateObject private var lockManager = LockManager.shared
+    
     var body: some Scene {
-        WindowGroup {
-            ContentView()
+        MenuBarExtra("Sentry", systemImage: "lock.shield") {
+            Button("Activate") {
+                lockManager.lock()
+            }
+            .keyboardShortcut("l", modifiers: [.command, .shift])
+            
+            Divider()
+            
+            Button("Quit") {
+                NSApplication.shared.terminate(nil)
+            }
+            .keyboardShortcut("q")
         }
     }
 }
