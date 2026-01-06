@@ -13,18 +13,28 @@ struct SentryApp: App {
     @StateObject private var lockManager = LockManager.shared
     
     var body: some Scene {
-        MenuBarExtra("Sentry", systemImage: "lock.shield") {
-            Button("Activate") {
-                lockManager.lock()
+        MenuBarExtra(
+            content: {
+                Text("Sentry")
+                
+                Divider()
+                
+                Button("Activate") {
+                    lockManager.lock()
+                }
+                .keyboardShortcut("l", modifiers: [.command, .shift])
+                
+                Divider()
+                
+                Button("Quit") {
+                    NSApplication.shared.terminate(nil)
+                }
+                .keyboardShortcut("q")
             }
-            .keyboardShortcut("l", modifiers: [.command, .shift])
-            
-            Divider()
-            
-            Button("Quit") {
-                NSApplication.shared.terminate(nil)
-            }
-            .keyboardShortcut("q")
+        ) {
+            Image("Sentry")
+                .renderingMode(.template)
+                .resizable()
         }
     }
 }
