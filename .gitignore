@@ -1,0 +1,47 @@
+## User settings
+xcuserdata/
+
+## Xcode 8 and later
+*.xcscmblueprint
+*.xccheckout
+
+## App packaging
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+## Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+## Swift Package Manager
+.build/
+
+## CocoaPods
+Pods/
+
+## Carthage
+Carthage/Build/
+
+## Accio
+Dependencies/
+
+## fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+
+## Code Injection
+/InjectionIII.app/
+/FileWatcher/
+/HotReloading/
+
+## Misc
+.DS_Store
+DerivedData/
+build/
+*.bbedit
+*.hmap
+*.xccheckout
+*.xcscmblueprint
