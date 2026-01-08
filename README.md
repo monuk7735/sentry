@@ -4,7 +4,7 @@
 <h3 style="font-size: 2.5rem; letter-spacing: 1px;">Sentry</h3>
 <p style="font-size: 1.15rem; font-weight: 500;">
     <strong>Secure your workflow without stopping it.</strong><br>
-    Sentry allows you to "lock" your Mac effectively—preventing unauthorized access with a Kiosk-style shield—while keeping the system technically unlocked. This ensures that long-running tasks like **compiling code, downloading large files, or rendering video** continue uninterrupted in the background, which would otherwise be paused by the native macOS sleep/lock.
+    Sentry allows you to "lock" your Mac effectively—preventing unauthorized access with a Kiosk-style shield—while keeping the system technically unlocked. This ensures that long-running tasks like <strong>compiling code, downloading large files, or rendering video</strong> continue uninterrupted in the background, which would otherwise be paused by the native macOS sleep/lock.
   </p>
 
 <br/><br/>
@@ -15,7 +15,7 @@
   [![Downloads](https://img.shields.io/github/downloads/monuk7735/sentry/total.svg)](https://github.com/monuk7735/sentry/releases)
   [![Issues](https://img.shields.io/github/issues/monuk7735/sentry.svg)](https://github.com/monuk7735/sentry/issues)
   [![Pull Requests](https://img.shields.io/github/issues-pr/monuk7735/sentry.svg)](https://github.com/monuk7735/sentry/pulls)
-  [![macOS Version](https://img.shields.io/badge/macOS-14.0%2B-blue.svg)](https://www.apple.com/macos/)
+  [![macOS Version](https://img.shields.io/badge/macOS-13.0%2B-blue.svg)](https://www.apple.com/macos/)
 
 <br/>
 
@@ -42,6 +42,14 @@
 - **SwiftUI & AppKit** - built for modern macOS performance.
 
 ## Installation
+
+### Homebrew
+
+```bash
+brew install --cask monuk7735/tap/sentry --no-quarantine
+```
+
+### Manual Download
 
 1. Download the latest release from [GitHub Releases](https://github.com/monuk7735/sentry/releases).
 2. Move the app to the Applications folder.
