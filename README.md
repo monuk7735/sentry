@@ -3,8 +3,8 @@
 <div>
 <h3 style="font-size: 2.5rem; letter-spacing: 1px;">Sentry</h3>
 <p style="font-size: 1.15rem; font-weight: 500;">
-    <strong>Keep your Mac awake and secure.</strong><br>
-    Sentry is a free, open-source macOS app that prevents your machine from sleeping while maintaining a vigilant, Kiosk-style lock screen. It uses biometrics to ensure only you can access the system, perfect for leaving your Mac running tasks in a secure state.
+    <strong>Secure your workflow without stopping it.</strong><br>
+    Sentry allows you to "lock" your Mac effectively—preventing unauthorized access with a Kiosk-style shield—while keeping the system technically unlocked. This ensures that long-running tasks like **compiling code, downloading large files, or rendering video** continue uninterrupted in the background, which would otherwise be paused by the native macOS sleep/lock.
   </p>
 
 <br/><br/>
@@ -47,12 +47,28 @@
 2. Move the app to the Applications folder.
 3. Run the app and grant necessary permissions if prompted.
 
-> ### <span style="color: yellow">Note!</span>
-> I don't have an Apple Developer account yet, so the application will display a popup on the first launch. 
->
-> Click Okay, then navigate to **Settings > Privacy & Security**, scroll down, and click **Open Anyway**. 
-> 
-> This only needs to be done once.
+### ⚠️ "Damaged" or "Unidentified Developer" Error?
+
+> I don't have an Apple Developer account yet, so the application will display a popup on the first launch.
+
+**Option 1 (Recommended): Allow via System Settings**
+
+1. Open **System Settings** → **Privacy & Security**.
+2. Scroll down to the **Security** section.
+3. Look for "**Sentry** was blocked..." and click **Open Anyway**.
+4. Click **Open** in the confirmation popup.
+
+**Option 2 (Advanced): Run this command in Terminal**
+
+```bash
+xattr -cr /Applications/Sentry.app
+```
+
+This command simply removes the "quarantine" flag that macOS places on apps downloaded from the internet, resolving the false error.
+
+- `xattr` : The utility to modify file attributes.
+- `-c` : Clears all attributes (removes the "quarantine" flag).
+- `-r` : Recursive (applies to all files inside the app bundle).
 
 ## Usage
 
