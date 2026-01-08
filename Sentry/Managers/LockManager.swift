@@ -39,24 +39,10 @@ class LockManager: ObservableObject {
         
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(appDidResignActive),
-            name: NSApplication.didResignActiveNotification,
+            selector: #selector(windowDidBecomeKey),
+            name: NSWindow.didBecomeKeyNotification,
             object: nil
         )
-    }
-    
-    @objc private func appDidResignActive() {
-        guard isLocked else { return }
-        
-        NSApp.activate(ignoringOtherApps: true)
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-            guard let self = self else { return }
-            
-            if !self.isAuthenticating {
-                self.authenticate()
-            }
-        }
     }
     
     @objc private func screenParametersDidChange() {
@@ -69,6 +55,17 @@ class LockManager: ObservableObject {
         
         if isLocked {
             unlock()
+        }
+    }
+    
+    @objc private func windowDidBecomeKey(_ notification: Notification) {
+        guard isLocked else { return }
+        
+        authContext?.invalidate()
+        isAuthenticating = false
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.authenticate()
         }
     }
     
@@ -242,9 +239,6 @@ class LockManager: ObservableObject {
         }
     }
     
-    private func displayID(for screen: NSScreen) -> CGDirectDisplayID {
-        return screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID ?? 0
-    }
 }
 
 class LockPanel: NSPanel {
