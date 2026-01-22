@@ -32,6 +32,7 @@
 ## Features
 
 - **Prevent Sleep** - Keeps your Mac awake and active (disables idle sleep) while locked, ensuring background tasks continue uninterrupted.
+- **Caffeine Mode** - Toggle "Caffeine Mode" to keep your Mac awake even when not locked.
 - **Kiosk-Style Security** - Hides the Dock, Menu Bar, and disables process switching (`Cmd+Tab`) while locked to prevent unauthorized access.
 - **Biometric Unlock** - Integrated directly with **Touch ID** for seamless, fast unlocking.
 - **Smart Fallback** - Detects when Touch ID is unavailable (e.g., Clamshell mode) and provides clear instructions to use standard system lock (`Cmd+Ctrl+Q`).
@@ -40,6 +41,15 @@
 - **Resilient Focus** - Aggressively maintains focus to prevent being bypassed by system shortcuts or other apps.
 - **Menu Bar App** - Unobtrusive menu bar item for quick activation.
 - **SwiftUI & AppKit** - built for modern macOS performance.
+
+## Global Shortcuts
+
+Sentry works silently in the background with global shortcuts:
+
+| Shortcut | Description |
+| :--- | :--- |
+| **Cmd + Shift + L** | Activates **Sentry Lock**. |
+| **Cmd + Shift + K** | Toggles **Caffeine Mode**. |
 
 ## Installation
 
@@ -81,9 +91,9 @@ This command simply removes the "quarantine" flag that macOS places on apps down
 ## Usage
 
 1. Launch **Sentry**.
-2. Click the shield icon in the menu bar.
-3. Select **Activate** (or use `Cmd+Shift+L` if configured).
-4. Your screen is now vigilant!
+2. Lock your screen using the **Global Shortcut** `Cmd + Shift + L`, or click "Activate" in the menu bar.
+3. Your screen is now vigilant! 
+4. To toggle **Caffeine Mode** (keep system awake), use `Cmd + Shift + K`.
 5. To unlock, simply use **Touch ID**.
    - If Touch ID is not available, the app will guide you to secure the system manually.
 
@@ -94,9 +104,9 @@ This command simply removes the "quarantine" flag that macOS places on apps down
 - [x] ~~Touch ID Authentication.~~
 - [x] ~~Smart focus stealing to prevent app switching.~~
 - [x] ~~Touch ID Fallback UI.~~
+- [x] ~~Global keyboard shortcut for activation.~~
 - [ ] Intruder selfie capture (Future).
 - [ ] Customizable lock screen backgrounds/widgets.
-- [ ] Global keyboard shortcut for activation.
 
 ## Troubleshooting
 
