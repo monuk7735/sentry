@@ -11,6 +11,21 @@ import SwiftUI
 struct SentryApp: App {
     
     @StateObject private var lockManager = LockManager.shared
+    private let hotKeyManager = HotKeyManager.shared
+    
+    init() {
+        hotKeyManager.onLockHotKey = {
+            DispatchQueue.main.async {
+                LockManager.shared.lock()
+            }
+        }
+        
+        hotKeyManager.onCaffeineHotKey = {
+            DispatchQueue.main.async {
+                LockManager.shared.caffeineMode.toggle()
+            }
+        }
+    }
     
     var body: some Scene {
         MenuBarExtra(
@@ -24,6 +39,16 @@ struct SentryApp: App {
                 }
                 .keyboardShortcut("l", modifiers: [.command, .shift])
                 
+                Button(
+                    action: {
+                        lockManager.caffeineMode.toggle()
+                    }
+                ) {
+                    Toggle("Caffeine", isOn: $lockManager.caffeineMode)
+                        .toggleStyle(.checkbox)
+                }
+                .keyboardShortcut("k", modifiers: [.command, .shift])
+                
                 Divider()
                 
                 Button("Quit") {
@@ -32,9 +57,13 @@ struct SentryApp: App {
                 .keyboardShortcut("q")
             }
         ) {
-            Image("Sentry")
-                .renderingMode(.template)
-                .resizable()
+            if lockManager.caffeineMode, let image = NSImage(named: "Sentry") {
+                Image(nsImage: image.tinted(with: .systemOrange))
+                    .renderingMode(.original)
+            } else {
+                Image("Sentry")
+                    .renderingMode(.template)
+            }
         }
     }
 }

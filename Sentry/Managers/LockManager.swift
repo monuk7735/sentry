@@ -16,11 +16,20 @@ class LockManager: ObservableObject {
     
     @Published var isLocked = false
     @Published var canUseTouchID = false
+    @Published var caffeineMode = false {
+        didSet {
+            updateCaffeineState()
+        }
+    }
     
     private var screenWindows: [NSScreen: NSPanel] = [:]
-    private var activity: NSObjectProtocol?
+    private var lockActivity: NSObjectProtocol?
+    private var caffeineActivity: NSObjectProtocol?
+    
     private var authContext: LAContext?
     private var isAuthenticating = false
+    
+    private var isStarting = false
     
     private init() {
         DistributedNotificationCenter.default().addObserver(
@@ -59,7 +68,7 @@ class LockManager: ObservableObject {
     }
     
     @objc private func windowDidBecomeKey(_ notification: Notification) {
-        guard isLocked else { return }
+        guard isLocked, !isStarting else { return }
         
         authContext?.invalidate()
         isAuthenticating = false
@@ -74,10 +83,13 @@ class LockManager: ObservableObject {
         
         checkBiometricAvailability()
         
-        activity = ProcessInfo.processInfo.beginActivity(
-            options: [.idleDisplaySleepDisabled, .idleSystemSleepDisabled],
-            reason: "Sentry Lock Screen"
-        )
+        // Start lock activity if not already active or if separate from caffeine
+        if lockActivity == nil {
+            lockActivity = ProcessInfo.processInfo.beginActivity(
+                options: [.idleDisplaySleepDisabled, .idleSystemSleepDisabled],
+                reason: "Sentry Lock Screen"
+            )
+        }
         
         let options: NSApplication.PresentationOptions = [
             .hideDock,
@@ -103,9 +115,11 @@ class LockManager: ObservableObject {
         }
         
         isLocked = true
+        isStarting = true
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
             self?.authenticate()
+            self?.isStarting = false
         }
     }
     
@@ -126,9 +140,9 @@ class LockManager: ObservableObject {
     }
     
     private func finishUnlock() {
-        if let activity = activity {
+        if let activity = lockActivity {
             ProcessInfo.processInfo.endActivity(activity)
-            self.activity = nil
+            self.lockActivity = nil
         }
         
         NSApp.presentationOptions = []
@@ -236,6 +250,22 @@ class LockManager: ObservableObject {
         let available = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
         DispatchQueue.main.async {
             self.canUseTouchID = available
+        }
+    }
+    
+    private func updateCaffeineState() {
+        if caffeineMode {
+            if caffeineActivity == nil {
+                caffeineActivity = ProcessInfo.processInfo.beginActivity(
+                    options: [.idleDisplaySleepDisabled, .idleSystemSleepDisabled],
+                    reason: "Sentry Caffeine Mode"
+                )
+            }
+        } else {
+            if let activity = caffeineActivity {
+                ProcessInfo.processInfo.endActivity(activity)
+                caffeineActivity = nil
+            }
         }
     }
     
