@@ -59,6 +59,8 @@ Sentry works silently in the background with global shortcuts:
 brew install --cask monuk7735/tap/sentry --no-quarantine
 ```
 
+> The `--no-quarantine` flag prevents the "App is damaged" error by bypassing macOS Gatekeeper quarantine.
+
 ### Manual Download
 
 1. Download the latest release from [GitHub Releases](https://github.com/monuk7735/sentry/releases).
