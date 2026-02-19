@@ -22,12 +22,11 @@ class LockManager: ObservableObject {
         }
     }
     
-    private var screenWindows: [NSScreen: NSPanel] = [:]
+    private var windows: [NSScreen: NSWindow] = [:]
     private var lockActivity: NSObjectProtocol?
     private var caffeineActivity: NSObjectProtocol?
     
     private var authContext: LAContext?
-    private var isAuthenticating = false
     
     private var isStarting = false
     
@@ -56,31 +55,94 @@ class LockManager: ObservableObject {
     
     @objc private func screenParametersDidChange() {
         guard isLocked else { return }
-        updateOverlays()
+        
+        self.refreshWindows(killAll: true)
     }
     
     @objc private func systemScreenDidLock() {
-        authContext?.invalidate()
-        
-        if isLocked {
-            unlock()
-        }
+        self.invalidateAuthContext()
+        self.unlock()
     }
     
     @objc private func windowDidBecomeKey(_ notification: Notification) {
         guard isLocked, !isStarting else { return }
         
-        authContext?.invalidate()
-        isAuthenticating = false
+        self.invalidateAuthContext()
         
         DispatchQueue.main.async { [weak self] in
             self?.authenticate()
         }
     }
     
-    func lock() {
-        guard !isLocked else { return }
+    private func invalidateAuthContext() {
+        self.authContext?.invalidate()
+        self.authContext = nil
+    }
+    
+    private func createPanel(for screen: NSScreen) -> NSPanel {
+        let panel = LockPanel(
+            contentRect: screen.frame,
+            styleMask: [.borderless],
+            backing: .buffered,
+            defer: false
+        )
         
+        panel.level = .screenSaver
+        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
+        panel.backgroundColor = .black
+        panel.isOpaque = true
+        panel.hasShadow = false
+        panel.ignoresMouseEvents = false
+        panel.hidesOnDeactivate = false
+        
+        let hostingView = NSHostingView(rootView: LockView())
+        panel.contentView = hostingView
+        panel.contentView?.wantsLayer = true
+        
+        if let layer = panel.contentView?.layer {
+            let center = CGPoint(x: panel.frame.width / 2, y: panel.frame.height / 2)
+            layer.position = center
+            layer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+        }
+        
+        return panel
+    }
+    
+    private func refreshWindows(killAll: Bool = false) {
+        windows.forEach { screen, window in
+            if killAll || !NSScreen.screens.contains(
+                where: { $0 == screen}
+            ) {
+                window.close()
+                
+                windows.removeValue(
+                    forKey: screen
+                )
+            }
+        }
+        
+        NSScreen.screens.forEach { screen in
+            var panel: NSWindow! = windows[screen]
+            
+            if panel == nil {
+                panel = createPanel(for: screen)
+            }
+            
+            #if DEBUG
+            panel.setFrame(screen.frame.insetBy(dx: screen.frame.width * 0.4, dy: screen.frame.height * 0.4), display: true)
+            #else
+            panel.setFrame(screen.frame, display: true)
+            #endif
+            
+            panel.orderFrontRegardless()
+            
+            windows[screen] = panel
+            
+            WindowManager.shared?.moveToLockScreen(panel)
+        }
+    }
+    
+    func lock() {
         checkBiometricAvailability()
         
         // Start lock activity if not already active or if separate from caffeine
@@ -102,9 +164,9 @@ class LockManager: ObservableObject {
         NSApp.presentationOptions = options
         NSApp.activate(ignoringOtherApps: true)
         
-        updateOverlays()
+        self.refreshWindows(killAll: true)
         
-        for window in screenWindows.values {
+        for window in windows.values {
             window.alphaValue = 0
             
             NSAnimationContext.runAnimationGroup { context in
@@ -126,12 +188,12 @@ class LockManager: ObservableObject {
     func unlock() {
         guard isLocked else { return }
         
-        authContext?.invalidate()
+        self.invalidateAuthContext()
         
         NSAnimationContext.runAnimationGroup { context in
             context.duration = 0.5
             context.timingFunction = CAMediaTimingFunction(name: .easeIn)
-            for window in screenWindows.values {
+            for window in windows.values {
                 window.animator().alphaValue = 0
             }
         } completionHandler: { [weak self] in
@@ -147,25 +209,22 @@ class LockManager: ObservableObject {
         
         NSApp.presentationOptions = []
         
-        screenWindows.values.forEach { $0.close() }
-        screenWindows.removeAll()
+        windows.values.forEach { $0.close() }
+        windows.removeAll()
         
         isLocked = false
     }
     
     func authenticate() {
-        guard !isAuthenticating else { return }
-        
         let context = LAContext()
+        self.invalidateAuthContext()
         self.authContext = context
-        self.isAuthenticating = true
         var error: NSError?
         
         let reason = "Unlock to access your Mac"
         
         let completion: (Bool, Error?) -> Void = { [weak self] success, authenticationError in
             DispatchQueue.main.async {
-                self?.isAuthenticating = false
                 if success {
                     self?.unlock()
                 }
@@ -177,71 +236,6 @@ class LockManager: ObservableObject {
         } else {
             context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason, reply: completion)
         }
-    }
-    
-    private func updateOverlays() {
-        let screens = NSScreen.screens
-        
-        for screen in screens {
-            if let existingWindow = screenWindows[screen] {
-                existingWindow.setFrame(screen.frame, display: true)
-                existingWindow.orderFrontRegardless()
-            } else {
-                let panel = createPanel(for: screen)
-                screenWindows[screen] = panel
-                
-                WindowManager.shared?.moveToLockScreen(panel)
-                panel.orderFrontRegardless()
-                
-                if isLocked {
-                    panel.alphaValue = 1
-                }
-            }
-        }
-        
-        for (oldScreen, window) in screenWindows {
-            if !screens.contains(oldScreen) {
-                window.close()
-                screenWindows.removeValue(forKey: oldScreen)
-            }
-        }
-    }
-    
-    private func createPanel(for screen: NSScreen) -> NSPanel {
-        let panel = LockPanel(
-            contentRect: screen.frame,
-            styleMask: [.borderless],
-            backing: .buffered,
-            defer: false
-        )
-        
-        panel.level = .screenSaver
-        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
-        panel.backgroundColor = .black
-        panel.isOpaque = true
-        panel.hasShadow = false
-        panel.ignoresMouseEvents = false
-        
-        panel.contentView?.wantsLayer = true
-        
-        let visualEffect = NSVisualEffectView()
-        visualEffect.blendingMode = .withinWindow
-        visualEffect.state = .active
-        visualEffect.material = .fullScreenUI
-        
-        let hostingView = NSHostingView(rootView: LockView())
-        panel.contentView = hostingView
-        panel.contentView?.wantsLayer = true
-        
-        panel.setFrame(screen.frame, display: true)
-        
-        if let layer = panel.contentView?.layer {
-            let center = CGPoint(x: panel.frame.width / 2, y: panel.frame.height / 2)
-            layer.position = center
-            layer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
-        }
-        
-        return panel
     }
     
     private func checkBiometricAvailability() {
