@@ -12,7 +12,9 @@ struct SentryApp: App {
     
     @StateObject private var lockManager = LockManager.shared
     private let hotKeyManager = HotKeyManager.shared
-    
+
+    private let settingsWindowController = SettingsWindowController()
+
     init() {
         hotKeyManager.onLockHotKey = {
             DispatchQueue.main.async {
@@ -37,8 +39,8 @@ struct SentryApp: App {
                 Button("Activate") {
                     lockManager.lock()
                 }
-                .keyboardShortcut("l", modifiers: [.command, .shift])
-                
+                .shortcutFromConfig(ShortcutHelper.loadIfSet(forKey: .lock))
+
                 Button(
                     action: {
                         lockManager.caffeineMode.toggle()
@@ -47,10 +49,15 @@ struct SentryApp: App {
                     Toggle("Caffeine", isOn: $lockManager.caffeineMode)
                         .toggleStyle(.checkbox)
                 }
-                .keyboardShortcut("k", modifiers: [.command, .shift])
-                
+                .shortcutFromConfig(ShortcutHelper.loadIfSet(forKey: .caffeine))
+
                 Divider()
-                
+
+                Button("Settings…") {
+                    settingsWindowController.show()
+                }
+                .keyboardShortcut(",", modifiers: .command)
+
                 Button("Quit") {
                     NSApplication.shared.terminate(nil)
                 }

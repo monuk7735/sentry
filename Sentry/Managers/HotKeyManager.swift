@@ -22,20 +22,26 @@ class HotKeyManager {
     private let caffeineHotKeyID = EventHotKeyID(signature: OSType(1196647243), id: 2) // 'SENT', 2
     
     private init() {
-        registerHotKeys()
         installEventHandler()
+        registerHotKeys()
     }
     
     deinit {
         unregisterHotKeys()
     }
-    
+
+    func reloadShortcuts() {
+        unregisterHotKeys()
+        registerHotKeys()
+    }
+
     private func registerHotKeys() {
-        // Lock: Cmd + Shift + L (kVK_ANSI_L = 0x25)
-        register(keyCode: UInt32(kVK_ANSI_L), modifiers: UInt32(cmdKey | shiftKey), id: lockHotKeyID)
-        
-        // Caffeine: Cmd + Shift + K (kVK_ANSI_K = 0x28)
-        register(keyCode: UInt32(kVK_ANSI_K), modifiers: UInt32(cmdKey | shiftKey), id: caffeineHotKeyID)
+        if let lock = ShortcutHelper.loadIfSet(forKey: .lock) {
+            register(keyCode: lock.keyCode, modifiers: lock.modifiers, id: lockHotKeyID)
+        }
+        if let caffeine = ShortcutHelper.loadIfSet(forKey: .caffeine) {
+            register(keyCode: caffeine.keyCode, modifiers: caffeine.modifiers, id: caffeineHotKeyID)
+        }
     }
     
     private func register(keyCode: UInt32, modifiers: UInt32, id: EventHotKeyID) {
@@ -61,11 +67,6 @@ class HotKeyManager {
             UnregisterEventHotKey(ref)
         }
         hotKeyRefs.removeAll()
-        
-        if let eventHandler = eventHandler {
-            RemoveEventHandler(eventHandler)
-            self.eventHandler = nil
-        }
     }
     
     private func installEventHandler() {

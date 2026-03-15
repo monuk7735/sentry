@@ -47,7 +47,7 @@ struct LockView: View {
             }
             .modifier(Shake(animatableData: CGFloat(attempts)))
             
-            if tapCount >= 5 {
+            if tapCount >= 2 {
                 VStack(spacing: 12) {
                     Spacer()
                     
