@@ -40,26 +40,27 @@
 - **Visual Feedback** - Shake animations on interaction and smooth fade transitions.
 - **Resilient Focus** - Aggressively maintains focus to prevent being bypassed by system shortcuts or other apps.
 - **Menu Bar App** - Unobtrusive menu bar item for quick activation.
+- **Customizable Shortcuts** - Easily edit or disable global keyboard shortcuts.
 - **SwiftUI & AppKit** - built for modern macOS performance.
 
 ## Global Shortcuts
 
-Sentry works silently in the background with global shortcuts:
+Sentry works silently in the background with customizable global shortcuts. By default:
 
 | Shortcut | Description |
 | :--- | :--- |
-| **Cmd + Shift + L** | Activates **Sentry Lock**. |
-| **Cmd + Shift + K** | Toggles **Caffeine Mode**. |
+| **Option + Shift + L** | Activates **Sentry Lock**. |
+| **Option + Shift + K** | Toggles **Caffeine Mode**. |
+
+> **Note:** You can easily edit or disable these shortcuts at any time via Sentry's Settings.
 
 ## Installation
 
 ### Homebrew
 
 ```bash
-brew install --cask monuk7735/tap/sentry --no-quarantine
+brew install --cask monuk7735/tap/sentry
 ```
-
-> The `--no-quarantine` flag prevents the "App is damaged" error by bypassing macOS Gatekeeper quarantine.
 
 ### Manual Download
 
@@ -93,9 +94,9 @@ This command simply removes the "quarantine" flag that macOS places on apps down
 ## Usage
 
 1. Launch **Sentry**.
-2. Lock your screen using the **Global Shortcut** `Cmd + Shift + L`, or click "Activate" in the menu bar.
+2. Lock your screen using the **Global Shortcut** `Option + Shift + L`, or click "Activate" in the menu bar.
 3. Your screen is now vigilant! 
-4. To toggle **Caffeine Mode** (keep system awake), use `Cmd + Shift + K`.
+4. To toggle **Caffeine Mode** (keep system awake), use `Option + Shift + K`.
 5. To unlock, simply use **Touch ID**.
    - If Touch ID is not available, the app will guide you to secure the system manually.
 
