@@ -6,16 +6,79 @@
 //
 
 import SwiftUI
+import Combine
 
 struct LockView: View {
     
     @StateObject private var lockManager = LockManager.shared
     @State private var attempts: Int = 0
     @State private var tapCount: Int = 0
+    @State private var currentDate = Date()
+    
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    
+    var timeString: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "hh:mm"
+        return formatter.string(from: currentDate)
+    }
+    
+    var dateString: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEE d MMM"
+        return formatter.string(from: currentDate)
+    }
     
     var body: some View {
         ZStack {
             Color.black.edgesIgnoringSafeArea(.all)
+            
+            VStack {
+                VStack(spacing: -8) {
+                    Text(dateString)
+                        .font(.system(size: 40, weight: .semibold))
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white.opacity(0.9))
+                    
+                    Text(timeString)
+                        .font(.system(size: 140, weight: .bold))
+                        .foregroundColor(.white)
+                }
+                .padding(.top, 40)
+                .onReceive(timer) { input in
+                    currentDate = input
+                }
+                
+                Spacer()
+                
+                if tapCount >= 2 {
+                    VStack(spacing: 12) {
+                        Spacer()
+                        
+                        Text("Having trouble with Touch ID?")
+                            .font(.system(size: 15, weight: .medium))
+                            .foregroundColor(.white.opacity(0.7))
+                        
+                        HStack(spacing: 6) {
+                            KeyView(label: "⌘")
+                            Text("+")
+                                .foregroundColor(.white.opacity(0.5))
+                                .font(.system(size: 16, weight: .semibold))
+                            KeyView(label: "⌃")
+                            Text("+")
+                                .foregroundColor(.white.opacity(0.5))
+                                .font(.system(size: 16, weight: .semibold))
+                            KeyView(label: "Q")
+                        }
+                        
+                        Text("to lock system & stop Sentry")
+                            .font(.system(size: 13, weight: .regular))
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+                    .transition(.opacity.animation(.easeInOut(duration: 0.5)))
+                }
+            }
+            .padding(.vertical, 60)
             
             VStack(spacing: 20) {
                 Image(systemName: "lock.shield.fill")
@@ -46,34 +109,6 @@ struct LockView: View {
                 }
             }
             .modifier(Shake(animatableData: CGFloat(attempts)))
-            
-            if tapCount >= 2 {
-                VStack(spacing: 12) {
-                    Spacer()
-                    
-                    Text("Having trouble with Touch ID?")
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundColor(.white.opacity(0.7))
-                    
-                    HStack(spacing: 6) {
-                        KeyView(label: "⌘")
-                        Text("+")
-                            .foregroundColor(.white.opacity(0.5))
-                            .font(.system(size: 16, weight: .semibold))
-                        KeyView(label: "⌃")
-                        Text("+")
-                            .foregroundColor(.white.opacity(0.5))
-                            .font(.system(size: 16, weight: .semibold))
-                        KeyView(label: "Q")
-                    }
-                    
-                    Text("to lock system & stop Sentry")
-                        .font(.system(size: 13, weight: .regular))
-                        .foregroundColor(.white.opacity(0.5))
-                }
-                .padding(.bottom, 60)
-                .transition(.opacity.animation(.easeInOut(duration: 0.5)))
-            }
         }
         .contentShape(Rectangle())
         .onTapGesture {
