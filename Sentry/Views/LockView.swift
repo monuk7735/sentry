@@ -14,6 +14,7 @@ struct LockView: View {
     @State private var attempts: Int = 0
     @State private var tapCount: Int = 0
     @State private var currentDate = Date()
+    @State private var verticalOffset: CGFloat = 0
     
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
@@ -45,9 +46,6 @@ struct LockView: View {
                         .foregroundColor(.white)
                 }
                 .padding(.top, 40)
-                .onReceive(timer) { input in
-                    currentDate = input
-                }
                 
                 Spacer()
                 
@@ -110,7 +108,18 @@ struct LockView: View {
             }
             .modifier(Shake(animatableData: CGFloat(attempts)))
         }
-        .contentShape(Rectangle())
+        .offset(y: verticalOffset)
+        .onReceive(timer) { input in
+            let lastMinute = Calendar.current.component(.minute, from: currentDate)
+            currentDate = input
+            let currentMinute = Calendar.current.component(.minute, from: input)
+            
+            if lastMinute != currentMinute {
+                withAnimation(.easeInOut(duration: 2.0)) {
+                    verticalOffset = CGFloat.random(in: -20...20)
+                }
+            }
+        }
         .onTapGesture {
             withAnimation(.default) {
                 self.attempts += 1
