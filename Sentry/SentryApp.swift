@@ -10,10 +10,9 @@ import SwiftUI
 @main
 struct SentryApp: App {
     
+    @StateObject private var settings = SettingsManager.shared
     @StateObject private var lockManager = LockManager.shared
     private let hotKeyManager = HotKeyManager.shared
-
-    @State private var settingsWindowController: SettingsWindowController?
 
     init() {
         hotKeyManager.onLockHotKey = {
@@ -53,11 +52,8 @@ struct SentryApp: App {
 
                 Divider()
 
-                Button("Settings…") {
-                    if settingsWindowController == nil {
-                        settingsWindowController = SettingsWindowController()
-                    }
-                    settingsWindowController?.show()
+                Button("Settings") {
+                    SettingsWindowManager.shared.show()
                 }
                 .keyboardShortcut(",", modifiers: .command)
 

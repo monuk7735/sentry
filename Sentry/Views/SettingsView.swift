@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 struct SettingsView: View {
 
@@ -19,105 +20,106 @@ struct SettingsView: View {
     @State private var showSuccessAlert = false
 
     var body: some View {
-        Form {
-            Section {
-                LabeledContent("Lock Screen") {
-                    ShortcutRecorderView(shortcut: $lockShortcut)
-                }
-
-                LabeledContent("Caffeine Mode") {
-                    ShortcutRecorderView(shortcut: $caffeineShortcut)
-                }
-            } header: {
-                HStack {
-                    Text("Keyboard Shortcuts")
-                        .font(.headline)
-                    
-                    Spacer()
-                    
-                    Button("Reset to Defaults") {
-                        ShortcutHelper.resetAll()
-                        lockShortcut     = ShortcutHelper.getDefault(forKey: .lock)
-                        caffeineShortcut = ShortcutHelper.getDefault(forKey: .caffeine)
+        VStack(spacing: 0) {
+            Form {
+                Section {
+                    LabeledContent("Lock Screen") {
+                        ShortcutRecorderView(shortcut: $lockShortcut)
                     }
-                }
-            } footer: {
-                Text("Click a field and press your desired key combination.\nPress Escape to cancel. Press x to clear.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            .padding(.leading, 4)
-            
-            Section {
-                Toggle("Show Clock & Date on Lock Screen", isOn: $settings.showClockWidget)
-            } header: {
-                Text("Clock Widget")
-                    .font(.headline)
-            }
-            .padding(.leading, 4)
-            
-            Section {
-                Toggle("Show Title Bar & Status Tag", isOn: $settings.cliShowTitleBar)
-                Stepper("Maximum Log Lines to Display: \(settings.cliLineLimit)", value: $settings.cliLineLimit, in: 3...10)
-            } header: {
-                Text("Command Progress Card")
-                    .font(.headline)
-            }
-            .padding(.leading, 4)
-            
-            Section {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Piping command output to the Sentry lock screen allows you to monitor running tasks without unlocking your Mac.")
-                        .font(.subheadline)
+
+                    LabeledContent("Caffeine Mode") {
+                        ShortcutRecorderView(shortcut: $caffeineShortcut)
+                    }
+                } header: {
+                    HStack {
+                        Text("Keyboard Shortcuts")
+                            .font(.headline)
+                        
+                        Spacer()
+                        
+                        Button("Reset to Defaults") {
+                            ShortcutHelper.resetAll()
+                            lockShortcut     = ShortcutHelper.getDefault(forKey: .lock)
+                            caffeineShortcut = ShortcutHelper.getDefault(forKey: .caffeine)
+                        }
+                    }
+                } footer: {
+                    Text("Click a field and press your desired key combination.\nPress Escape to cancel. Press x to clear.")
+                        .font(.caption)
                         .foregroundStyle(.secondary)
-                        .padding(.bottom, 4)
-                    
-                    HStack(spacing: 12) {
-                        Button(action: installCliTool) {
-                            HStack {
-                                Image(systemName: "terminal.fill")
-                                Text(installStatusText)
+                }
+                .padding(.leading, 4)
+                
+                Section {
+                    Toggle("Show Clock & Date on Lock Screen", isOn: $settings.showClockWidget)
+                } header: {
+                    Text("Clock Widget")
+                        .font(.headline)
+                }
+                .padding(.leading, 4)
+                
+                Section {
+                    Toggle("Show Title Bar & Status Tag", isOn: $settings.cliShowTitleBar)
+                    Stepper("Maximum Log Lines to Display: \(settings.cliLineLimit)", value: $settings.cliLineLimit, in: 3...10)
+                } header: {
+                    Text("Command Progress Card")
+                        .font(.headline)
+                }
+                .padding(.leading, 4)
+                
+                Section {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Piping command output to the Sentry lock screen allows you to monitor running tasks without unlocking your Mac.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .padding(.bottom, 4)
+                        
+                        HStack(spacing: 12) {
+                            Button(action: installCliTool) {
+                                HStack {
+                                    Image(systemName: "terminal.fill")
+                                    Text(installStatusText)
+                                }
+                            }
+                            
+                            Button("Copy Manual Install Command") {
+                                copyManualCommand()
                             }
                         }
                         
-                        Button("Copy Manual Install Command") {
-                            copyManualCommand()
+                        if !cliInstallError.isEmpty {
+                            Text(cliInstallError)
+                                .font(.caption)
+                                .foregroundColor(.red)
+                                .padding(.top, 2)
+                        } else if showSuccessAlert {
+                            Text("Action completed successfully!")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                                .padding(.top, 2)
                         }
                     }
-                    
-                    if !cliInstallError.isEmpty {
-                        Text(cliInstallError)
+                } header: {
+                    Text("CLI Integration")
+                        .font(.headline)
+                } footer: {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Usage:")
                             .font(.caption)
-                            .foregroundColor(.red)
-                            .padding(.top, 2)
-                    } else if showSuccessAlert {
-                        Text("Action completed successfully!")
+                            .fontWeight(.bold)
+                        Text("• Pipe output:  `make build | sentry-cli --title \"Build\"` \n• Subcommand: `sentry-cli --title \"Test\" -- sleep 5` \n• Use `-c` / `--clear` option to automatically remove progress on completion.")
                             .font(.caption)
-                            .foregroundColor(.green)
-                            .padding(.top, 2)
                     }
+                    .foregroundStyle(.secondary)
                 }
-            } header: {
-                Text("CLI Integration")
-                    .font(.headline)
-            } footer: {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Usage:")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                    Text("• Pipe output:  `make build | sentry-cli --title \"Build\"` \n• Subcommand: `sentry-cli --title \"Test\" -- sleep 5` \n• Use `-c` / `--clear` option to automatically remove progress on completion.")
-                        .font(.caption)
-                }
-                .foregroundStyle(.secondary)
+                .padding(.leading, 4)
             }
-            .padding(.leading, 4)
+            .formStyle(.grouped)
+            .padding(.horizontal, 4)
         }
-        .formStyle(.grouped)
-        .padding(8)
-        .padding(.horizontal, 4)
         .frame(
             minWidth: 650,
-            minHeight: 420
+            minHeight: 450
         )
         .onAppear {
             checkCliStatus()
@@ -129,6 +131,7 @@ struct SettingsView: View {
                 ShortcutHelper.reset(forKey: .lock)
             }
             HotKeyManager.shared.reloadShortcuts()
+            SettingsManager.shared.objectWillChange.send()
         }
         .onChange(of: caffeineShortcut) { newValue in
             if let shortcut = newValue {
@@ -137,6 +140,7 @@ struct SettingsView: View {
                 ShortcutHelper.reset(forKey: .caffeine)
             }
             HotKeyManager.shared.reloadShortcuts()
+            SettingsManager.shared.objectWillChange.send()
         }
     }
     

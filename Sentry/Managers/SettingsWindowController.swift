@@ -15,7 +15,7 @@ final class SettingsWindowController: NSWindowController {
         let window = NSPanel(contentViewController: hostingController)
         
         window.title = "Sentry Settings"
-        window.styleMask = [.titled, .closable, .resizable, .utilityWindow]
+        window.styleMask = [.titled, .closable, .resizable, .fullSizeContentView]
         window.isReleasedWhenClosed = false
         window.hidesOnDeactivate = false
         window.center()
@@ -29,5 +29,22 @@ final class SettingsWindowController: NSWindowController {
         NSApp.activate(ignoringOtherApps: true)
         window?.orderFrontRegardless()
         window?.makeKeyAndOrderFront(nil)
+    }
+}
+
+final class SettingsWindowManager {
+    static let shared = SettingsWindowManager()
+    
+    private var controller: SettingsWindowController?
+    
+    private init() {}
+    
+    func show() {
+        DispatchQueue.main.async {
+            if self.controller == nil {
+                self.controller = SettingsWindowController()
+            }
+            self.controller?.show()
+        }
     }
 }

@@ -54,23 +54,24 @@ class LockManager: ObservableObject {
     }
     
     @objc private func screenParametersDidChange() {
-        guard isLocked else { return }
-        
-        self.refreshWindows(killAll: true)
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, self.isLocked else { return }
+            self.refreshWindows(killAll: true)
+        }
     }
     
     @objc private func systemScreenDidLock() {
-        self.invalidateAuthContext()
-        self.unlock()
+        DispatchQueue.main.async { [weak self] in
+            self?.invalidateAuthContext()
+            self?.unlock()
+        }
     }
     
     @objc private func windowDidBecomeKey(_ notification: Notification) {
-        guard isLocked, !isStarting else { return }
-        
-        self.invalidateAuthContext()
-        
         DispatchQueue.main.async { [weak self] in
-            self?.authenticate()
+            guard let self = self, self.isLocked, !self.isStarting else { return }
+            self.invalidateAuthContext()
+            self.authenticate()
         }
     }
     
@@ -97,13 +98,6 @@ class LockManager: ObservableObject {
         
         let hostingView = NSHostingView(rootView: LockView())
         panel.contentView = hostingView
-        panel.contentView?.wantsLayer = true
-        
-        if let layer = panel.contentView?.layer {
-            let center = CGPoint(x: panel.frame.width / 2, y: panel.frame.height / 2)
-            layer.position = center
-            layer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
-        }
         
         return panel
     }
