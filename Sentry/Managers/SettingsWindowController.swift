@@ -12,7 +12,7 @@ final class SettingsWindowController: NSWindowController {
 
     convenience init() {
         let hostingController = NSHostingController(rootView: SettingsView())
-        let window = NSWindow(contentViewController: hostingController)
+        let window = NSPanel(contentViewController: hostingController)
         
         window.title = "Sentry Settings"
         window.styleMask = [.titled, .closable, .resizable, .utilityWindow]

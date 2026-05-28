@@ -12,6 +12,8 @@ struct LockView: View {
     
     @StateObject private var lockManager = LockManager.shared
     @StateObject private var cliManager = CLIManager.shared
+    
+    @StateObject private var settings = SettingsManager.shared
 
     @State private var attempts: Int = 0
     @State private var tapCount: Int = 0
@@ -38,17 +40,22 @@ struct LockView: View {
             Color.black.edgesIgnoringSafeArea(.all)
             
             VStack {
-                VStack(spacing: -8) {
-                    Text(dateString)
-                        .font(.system(size: 40, weight: .semibold))
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white.opacity(0.9))
-                    
-                    Text(timeString)
-                        .font(.system(size: 140, weight: .bold))
-                        .foregroundColor(.white)
+                if settings.showClockWidget {
+                    VStack(spacing: -8) {
+                        Text(dateString)
+                            .font(.system(size: 40, weight: .semibold))
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white.opacity(0.9))
+                        
+                        Text(timeString)
+                            .font(.system(size: 140, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                    .padding(.top, 40)
+                } else {
+                    Spacer()
+                        .frame(height: 40)
                 }
-                .padding(.top, 40)
                 
                 Spacer()
                 
@@ -144,74 +151,77 @@ struct LockView: View {
     
     private var cliProgressCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 8) {
-                Image(systemName: "terminal.fill")
-                    .font(.system(size: 14))
-                    .foregroundColor(.white.opacity(0.7))
-                
-                Text(cliManager.title)
-                    .font(.system(size: 14, weight: .semibold, design: .monospaced))
-                    .foregroundColor(.white)
-                    .lineLimit(1)
-                
-                Spacer()
-                
-                HStack(spacing: 6) {
-                    if cliManager.status == "running" {
-                        Circle()
-                            .fill(Color.blue)
-                            .frame(width: 8, height: 8)
-                            .opacity(pulseState ? 0.3 : 1.0)
-                            .onAppear {
-                                withAnimation(Animation.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
-                                    pulseState = true
+            if settings.cliShowTitleBar {
+                HStack(spacing: 8) {
+                    Image(systemName: "terminal.fill")
+                        .font(.system(size: 14))
+                        .foregroundColor(.white.opacity(0.7))
+                    
+                    Text(cliManager.title)
+                        .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                    
+                    Spacer()
+                    
+                    HStack(spacing: 6) {
+                        if cliManager.status == "running" {
+                            Circle()
+                                .fill(Color.blue)
+                                .frame(width: 8, height: 8)
+                                .opacity(pulseState ? 0.3 : 1.0)
+                                .onAppear {
+                                    withAnimation(Animation.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
+                                        pulseState = true
+                                    }
                                 }
-                            }
-                            .onDisappear {
-                                pulseState = false
-                            }
-                        
-                        Text("Running")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.blue)
-                    } else if cliManager.status == "success" {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 12))
-                            .foregroundColor(.green)
-                        
-                        Text("Success")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.green)
-                    } else if cliManager.status == "failed" {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 12))
-                            .foregroundColor(.red)
-                        
-                        Text("Failed")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.red)
-                    } else {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 12))
-                            .foregroundColor(.gray)
-                        
-                        Text("Completed")
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(.gray)
+                                .onDisappear {
+                                    pulseState = false
+                                }
+                            
+                            Text("Running")
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundColor(.blue)
+                        } else if cliManager.status == "success" {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 12))
+                                .foregroundColor(.green)
+                            
+                            Text("Success")
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundColor(.green)
+                        } else if cliManager.status == "failed" {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.system(size: 12))
+                                .foregroundColor(.red)
+                            
+                            Text("Failed")
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundColor(.red)
+                        } else {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 12))
+                                .foregroundColor(.gray)
+                            
+                            Text("Completed")
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundColor(.gray)
+                        }
                     }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.white.opacity(0.08))
+                    .cornerRadius(12)
                 }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(Color.white.opacity(0.08))
-                .cornerRadius(12)
+                
+                Divider()
+                    .background(Color.white.opacity(0.15))
             }
             
-            Divider()
-                .background(Color.white.opacity(0.15))
-            
             VStack(alignment: .leading, spacing: 4) {
-                ForEach(Array(cliManager.lines.enumerated()), id: \.offset) { index, line in
-                    let isLast = index == cliManager.lines.count - 1
+                let displayLines = Array(cliManager.lines.suffix(settings.cliLineLimit))
+                ForEach(Array(displayLines.enumerated()), id: \.offset) { index, line in
+                    let isLast = index == displayLines.count - 1
                     Text(line)
                         .font(.system(size: 12, design: .monospaced))
                         .foregroundColor(isLast ? .white : .white.opacity(0.5))
@@ -219,6 +229,7 @@ struct LockView: View {
                         .transition(.opacity)
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(16)
         .frame(maxWidth: 640)

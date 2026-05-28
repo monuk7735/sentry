@@ -12,6 +12,8 @@ struct SettingsView: View {
     @State private var lockShortcut: ShortcutConfig? = ShortcutHelper.loadIfSet(forKey: .lock)
     @State private var caffeineShortcut: ShortcutConfig? = ShortcutHelper.loadIfSet(forKey: .caffeine)
     
+    @StateObject private var settings = SettingsManager.shared
+    
     @State private var installStatusText = "Install CLI Tool"
     @State private var cliInstallError = ""
     @State private var showSuccessAlert = false
@@ -43,6 +45,23 @@ struct SettingsView: View {
                 Text("Click a field and press your desired key combination.\nPress Escape to cancel. Press x to clear.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            }
+            .padding(.leading, 4)
+            
+            Section {
+                Toggle("Show Clock & Date on Lock Screen", isOn: $settings.showClockWidget)
+            } header: {
+                Text("Clock Widget")
+                    .font(.headline)
+            }
+            .padding(.leading, 4)
+            
+            Section {
+                Toggle("Show Title Bar & Status Tag", isOn: $settings.cliShowTitleBar)
+                Stepper("Maximum Log Lines to Display: \(settings.cliLineLimit)", value: $settings.cliLineLimit, in: 3...10)
+            } header: {
+                Text("Command Progress Card")
+                    .font(.headline)
             }
             .padding(.leading, 4)
             
