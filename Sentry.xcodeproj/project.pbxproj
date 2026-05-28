@@ -55,6 +55,7 @@
 				25AB01472F0D865C0031CBE2 /* Sources */,
 				25AB01482F0D865C0031CBE2 /* Frameworks */,
 				25AB01492F0D865C0031CBE2 /* Resources */,
+				25AB01592F0D865D0031CBE2 /* Compile Sentry CLI */,
 			);
 			buildRules = (
 			);
@@ -113,6 +114,29 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		25AB01592F0D865D0031CBE2 /* Compile Sentry CLI */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/SentryCLI/sentry-cli.swift",
+			);
+			name = "Compile Sentry CLI";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/sentry-cli",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "swiftc -O \"${SRCROOT}/SentryCLI/sentry-cli.swift\" -o \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/sentry-cli\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		25AB01472F0D865C0031CBE2 /* Sources */ = {

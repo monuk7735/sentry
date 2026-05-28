@@ -11,10 +11,13 @@ import Combine
 struct LockView: View {
     
     @StateObject private var lockManager = LockManager.shared
+    @StateObject private var cliManager = CLIManager.shared
+
     @State private var attempts: Int = 0
     @State private var tapCount: Int = 0
     @State private var currentDate = Date()
     @State private var verticalOffset: CGFloat = 0
+    @State private var pulseState: Bool = false
     
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
@@ -49,10 +52,13 @@ struct LockView: View {
                 
                 Spacer()
                 
+                if cliManager.isVisible {
+                    cliProgressCard
+                        .padding(.bottom, 20)
+                }
+                
                 if tapCount >= 2 {
                     VStack(spacing: 12) {
-                        Spacer()
-                        
                         Text("Having trouble with Touch ID?")
                             .font(.system(size: 15, weight: .medium))
                             .foregroundColor(.white.opacity(0.7))
@@ -134,6 +140,102 @@ struct LockView: View {
                 }
             }
         }
+    }
+    
+    private var cliProgressCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: "terminal.fill")
+                    .font(.system(size: 14))
+                    .foregroundColor(.white.opacity(0.7))
+                
+                Text(cliManager.title)
+                    .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                
+                Spacer()
+                
+                HStack(spacing: 6) {
+                    if cliManager.status == "running" {
+                        Circle()
+                            .fill(Color.blue)
+                            .frame(width: 8, height: 8)
+                            .opacity(pulseState ? 0.3 : 1.0)
+                            .onAppear {
+                                withAnimation(Animation.easeInOut(duration: 0.8).repeatForever(autoreverses: true)) {
+                                    pulseState = true
+                                }
+                            }
+                            .onDisappear {
+                                pulseState = false
+                            }
+                        
+                        Text("Running")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(.blue)
+                    } else if cliManager.status == "success" {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 12))
+                            .foregroundColor(.green)
+                        
+                        Text("Success")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(.green)
+                    } else if cliManager.status == "failed" {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 12))
+                            .foregroundColor(.red)
+                        
+                        Text("Failed")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(.red)
+                    } else {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 12))
+                            .foregroundColor(.gray)
+                        
+                        Text("Completed")
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundColor(.gray)
+                    }
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.white.opacity(0.08))
+                .cornerRadius(12)
+            }
+            
+            Divider()
+                .background(Color.white.opacity(0.15))
+            
+            VStack(alignment: .leading, spacing: 4) {
+                ForEach(Array(cliManager.lines.enumerated()), id: \.offset) { index, line in
+                    let isLast = index == cliManager.lines.count - 1
+                    Text(line)
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundColor(isLast ? .white : .white.opacity(0.5))
+                        .lineLimit(1)
+                        .transition(.opacity)
+                }
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: 640)
+        .background {
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.black.opacity(0.5))
+                .background(.ultraThinMaterial)
+        }
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 5)
+        .transition(
+            .move(edge: .bottom).combined(with: .opacity)
+        )
     }
 }
 
