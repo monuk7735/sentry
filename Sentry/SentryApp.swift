@@ -13,7 +13,7 @@ struct SentryApp: App {
     @StateObject private var lockManager = LockManager.shared
     private let hotKeyManager = HotKeyManager.shared
 
-    private let settingsWindowController = SettingsWindowController()
+    @State private var settingsWindowController: SettingsWindowController?
 
     init() {
         hotKeyManager.onLockHotKey = {
@@ -54,7 +54,10 @@ struct SentryApp: App {
                 Divider()
 
                 Button("Settings…") {
-                    settingsWindowController.show()
+                    if settingsWindowController == nil {
+                        settingsWindowController = SettingsWindowController()
+                    }
+                    settingsWindowController?.show()
                 }
                 .keyboardShortcut(",", modifiers: .command)
 

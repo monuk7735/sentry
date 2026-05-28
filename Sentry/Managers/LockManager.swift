@@ -129,7 +129,7 @@ class LockManager: ObservableObject {
             }
             
             #if DEBUG
-            panel.setFrame(screen.frame.insetBy(dx: screen.frame.width * 0.4, dy: screen.frame.height * 0.4), display: true)
+            panel.setFrame(screen.frame.insetBy(dx: screen.frame.width * 0.2, dy: screen.frame.height * 0.2), display: true)
             #else
             panel.setFrame(screen.frame, display: true)
             #endif
