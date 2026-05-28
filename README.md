@@ -33,6 +33,8 @@
 
 - **Prevent Sleep** - Keeps your Mac awake and active (disables idle sleep) while locked, ensuring background tasks continue uninterrupted.
 - **Caffeine Mode** - Toggle "Caffeine Mode" to keep your Mac awake even when not locked.
+- **Lock Screen Clock & Date** - Displays a modern, macOS-style clock and date widget on the lock screen (can be toggled in Settings).
+- **CLI Command Monitoring** - Pipe long-running logs and command outputs directly to the lock screen with the integrated `sentry-cli` tool.
 - **Kiosk-Style Security** - Hides the Dock, Menu Bar, and disables process switching (`Cmd+Tab`) while locked to prevent unauthorized access.
 - **Biometric Unlock** - Integrated directly with **Touch ID** for seamless, fast unlocking.
 - **Smart Fallback** - Detects when Touch ID is unavailable (e.g., Clamshell mode) and provides clear instructions to use standard system lock (`Cmd+Ctrl+Q`).
@@ -53,6 +55,28 @@ Sentry works silently in the background with customizable global shortcuts. By d
 | **Option + Shift + K** | Toggles **Caffeine Mode**. |
 
 > **Note:** You can easily edit or disable these shortcuts at any time via Sentry's Settings.
+
+## CLI Integration
+
+Sentry includes a lightweight command-line companion (`sentry-cli`) that allows piping logs, stdout, or running subcommands directly on your lock screen so you can monitor progress.
+
+### Installation
+Go to Sentry **Settings** and click **Install CLI Tool** to install it to `/usr/local/bin/sentry-cli`.
+
+### Examples
+* **Pipe stdout of a command:**
+  ```bash
+  make build | sentry-cli --title "Build"
+  ```
+* **Run a command as a subcommand:**
+  ```bash
+  sentry-cli --title "Testing" -- npm test
+  ```
+* **Automatically clear progress when finished:**
+  Pass the `-c` or `--clear` option:
+  ```bash
+  sentry-cli -c --title "Deploy" -- ./deploy.sh
+  ```
 
 ## Installation
 
@@ -108,8 +132,9 @@ This command simply removes the "quarantine" flag that macOS places on apps down
 - [x] ~~Smart focus stealing to prevent app switching.~~
 - [x] ~~Touch ID Fallback UI.~~
 - [x] ~~Global keyboard shortcut for activation.~~
+- [x] ~~Lock screen clock widget and command progress monitoring.~~
 - [ ] Intruder selfie capture (Future).
-- [ ] Customizable lock screen backgrounds/widgets.
+- [ ] Customizable lock screen backgrounds.
 
 ## Troubleshooting
 
