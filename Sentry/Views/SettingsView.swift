@@ -23,12 +23,26 @@ struct SettingsView: View {
         VStack(spacing: 0) {
             Form {
                 Section {
-                    LabeledContent("Lock Screen") {
+                    LabeledContent {
                         ShortcutRecorderView(shortcut: $lockShortcut)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Lock Screen")
+                            Text("Lock Mac & monitor running CLI tasks")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
                     }
 
-                    LabeledContent("Caffeine Mode") {
+                    LabeledContent {
                         ShortcutRecorderView(shortcut: $caffeineShortcut)
+                    } label: {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Caffeine Mode")
+                            Text("Prevent Mac & display from sleeping")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 } header: {
                     HStack {
@@ -44,9 +58,23 @@ struct SettingsView: View {
                         }
                     }
                 } footer: {
-                    Text("Click a field and press your desired key combination.\nPress Escape to cancel. Press x to clear.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Features:")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                        Text("• Lock Screen: Locks your Mac with Sentry's overlay to monitor command outputs, status logs, and view clock/date widgets.")
+                            .font(.caption)
+                        Text("• Caffeine Mode: Prevents your Mac from sleeping or turning off the display, keeping background processes active.")
+                            .font(.caption)
+                        
+                        Text("Recording Shortcuts:")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .padding(.top, 4)
+                        Text("• Click the field and press your key combination (e.g., ⌘⌥L or ⌃⌥C).\n• Shortcut must include at least one modifier key (⌘ Command, ⌥ Option, or ⌃ Control).\n• Press Escape to cancel recording. Click the 'x' button next to a shortcut to clear it.")
+                            .font(.caption)
+                    }
+                    .foregroundStyle(.secondary)
                 }
                 .padding(.leading, 4)
                 
