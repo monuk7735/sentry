@@ -269,6 +269,7 @@ struct ProgressCardBackgroundModifier: ViewModifier {
                             .fill(Color.black.opacity(0.5))
                             .background(.ultraThinMaterial)
                     }
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
                     .overlay(
                         RoundedRectangle(cornerRadius: 16)
                             .stroke(Color.white.opacity(0.12), lineWidth: 1)
@@ -281,6 +282,7 @@ struct ProgressCardBackgroundModifier: ViewModifier {
                         .fill(Color.black.opacity(0.5))
                         .background(.ultraThinMaterial)
                 }
+                .clipShape(RoundedRectangle(cornerRadius: 16))
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
                         .stroke(Color.white.opacity(0.12), lineWidth: 1)
