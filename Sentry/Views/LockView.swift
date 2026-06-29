@@ -12,7 +12,6 @@ struct LockView: View {
     
     @StateObject private var lockManager = LockManager.shared
     @StateObject private var cliManager = CLIManager.shared
-    
     @StateObject private var settings = SettingsManager.shared
 
     @State private var attempts: Int = 0
@@ -36,93 +35,106 @@ struct LockView: View {
     }
     
     var body: some View {
+        let isSystem = settings.lockBehavior == .system
+        
         ZStack {
-            Color.black.edgesIgnoringSafeArea(.all)
+            if isSystem {
+                Color.clear.edgesIgnoringSafeArea(.all)
+            } else {
+                Color.black.edgesIgnoringSafeArea(.all)
+            }
             
-            VStack {
-                if settings.showClockWidget {
-                    VStack(spacing: -8) {
-                        Text(dateString)
-                            .font(.system(size: 40, weight: .semibold))
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white.opacity(0.9))
-                        
-                        Text(timeString)
-                            .font(.system(size: 140, weight: .bold))
-                            .foregroundColor(.white)
-                    }
-                    .padding(.top, 40)
-                } else {
-                    Spacer()
-                        .frame(height: 40)
-                }
-                
-                Spacer()
-                
+            if isSystem {
                 if cliManager.isVisible {
                     cliProgressCard
-                        .padding(.bottom, 20)
                 }
-                
-                if tapCount >= 2 {
-                    VStack(spacing: 12) {
-                        Text("Having trouble with Touch ID?")
-                            .font(.system(size: 15, weight: .medium))
-                            .foregroundColor(.white.opacity(0.7))
-                        
-                        HStack(spacing: 6) {
-                            KeyView(label: "⌘")
-                            Text("+")
-                                .foregroundColor(.white.opacity(0.5))
-                                .font(.system(size: 16, weight: .semibold))
-                            KeyView(label: "⌃")
-                            Text("+")
-                                .foregroundColor(.white.opacity(0.5))
-                                .font(.system(size: 16, weight: .semibold))
-                            KeyView(label: "Q")
+            } else {
+                VStack {
+                    if settings.showClockWidget {
+                        VStack(spacing: -8) {
+                            Text(dateString)
+                                .font(.system(size: 40, weight: .semibold))
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white.opacity(0.9))
+                            
+                            Text(timeString)
+                                .font(.system(size: 140, weight: .bold))
+                                .foregroundColor(.white)
                         }
-                        
-                        Text("to lock system & stop Sentry")
-                            .font(.system(size: 13, weight: .regular))
-                            .foregroundColor(.white.opacity(0.5))
+                        .padding(.top, 40)
+                    } else {
+                        Spacer()
+                            .frame(height: 40)
                     }
-                    .transition(.opacity.animation(.easeInOut(duration: 0.5)))
-                }
-            }
-            .padding(.vertical, 60)
-            
-            VStack(spacing: 20) {
-                Image(systemName: "lock.shield.fill")
-                    .font(.system(size: 80))
-                    .foregroundColor(.white)
-                
-                Text("Sentry Active")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                if lockManager.canUseTouchID {
-                    Text("Touch ID to unlock")
-                    .font(.title2)
-                    .foregroundColor(.gray)
-                } else {
-                    VStack(spacing: 8) {
-                        Text("Touch ID Unavailable")
-                            .font(.title3)
-                            .fontWeight(.medium)
-                            .foregroundColor(.orange)
-                        
-                        Text("Press Cmd + Ctrl + Q to Lock System")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                            .padding(.top, 4)
+                    
+                    Spacer()
+                    
+                    if cliManager.isVisible {
+                        cliProgressCard
+                            .padding(.bottom, 20)
+                    }
+                    
+                    if tapCount >= 2 {
+                        VStack(spacing: 12) {
+                            Text("Having trouble with Touch ID?")
+                                .font(.system(size: 15, weight: .medium))
+                                .foregroundColor(.white.opacity(0.7))
+                            
+                            HStack(spacing: 6) {
+                                KeyView(label: "⌘")
+                                Text("+")
+                                    .foregroundColor(.white.opacity(0.5))
+                                    .font(.system(size: 16, weight: .semibold))
+                                KeyView(label: "⌃")
+                                Text("+")
+                                    .foregroundColor(.white.opacity(0.5))
+                                    .font(.system(size: 16, weight: .semibold))
+                                KeyView(label: "Q")
+                            }
+                            
+                            Text("to lock system & stop Sentry")
+                                .font(.system(size: 13, weight: .regular))
+                                .foregroundColor(.white.opacity(0.5))
+                        }
+                        .transition(.opacity.animation(.easeInOut(duration: 0.5)))
                     }
                 }
+                .padding(.vertical, 60)
+                
+                VStack(spacing: 20) {
+                    Image(systemName: "lock.shield.fill")
+                        .font(.system(size: 80))
+                        .foregroundColor(.white)
+                    
+                    Text("Sentry Active")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    
+                    if lockManager.canUseTouchID {
+                        Text("Touch ID to unlock")
+                        .font(.title2)
+                        .foregroundColor(.gray)
+                    } else {
+                        VStack(spacing: 8) {
+                            Text("Touch ID Unavailable")
+                                .font(.title3)
+                                .fontWeight(.medium)
+                                .foregroundColor(.orange)
+                            
+                            Text("Press Cmd + Ctrl + Q to Lock System")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                                .padding(.top, 4)
+                        }
+                    }
+                }
+                .modifier(Shake(animatableData: CGFloat(attempts)))
             }
-            .modifier(Shake(animatableData: CGFloat(attempts)))
         }
-        .offset(y: verticalOffset)
+        .offset(y: isSystem ? 0 : verticalOffset)
         .onReceive(timer) { input in
+            guard !isSystem else { return }
             let lastMinute = Calendar.current.component(.minute, from: currentDate)
             currentDate = input
             let currentMinute = Calendar.current.component(.minute, from: input)
@@ -134,6 +146,7 @@ struct LockView: View {
             }
         }
         .onTapGesture {
+            guard !isSystem else { return }
             withAnimation(.default) {
                 self.attempts += 1
                 self.tapCount += 1
@@ -233,20 +246,52 @@ struct LockView: View {
         }
         .padding(16)
         .frame(maxWidth: 640)
-        .background {
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color.black.opacity(0.5))
-                .background(.ultraThinMaterial)
-        }
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.white.opacity(0.12), lineWidth: 1)
-        )
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .applyProgressCardBackground(isSystemLock: settings.lockBehavior == .system)
         .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 5)
         .transition(
             .move(edge: .bottom).combined(with: .opacity)
         )
+    }
+}
+
+struct ProgressCardBackgroundModifier: ViewModifier {
+    let isSystemLock: Bool
+    
+    func body(content: Content) -> some View {
+        if isSystemLock {
+            if #available(macOS 26.0, *) {
+                content
+                    .glassEffect(in: RoundedRectangle(cornerRadius: 16))
+            } else {
+                content
+                    .background {
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.black.opacity(0.5))
+                            .background(.ultraThinMaterial)
+                    }
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                    )
+            }
+        } else {
+            content
+                .background {
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(Color.black.opacity(0.5))
+                        .background(.ultraThinMaterial)
+                }
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                )
+        }
+    }
+}
+
+extension View {
+    func applyProgressCardBackground(isSystemLock: Bool) -> some View {
+        self.modifier(ProgressCardBackgroundModifier(isSystemLock: isSystemLock))
     }
 }
 

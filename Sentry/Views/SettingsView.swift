@@ -79,12 +79,27 @@ struct SettingsView: View {
                 .padding(.leading, 4)
                 
                 Section {
-                    Toggle("Show Clock & Date on Lock Screen", isOn: $settings.showClockWidget)
+                    Picker("Lock Screen Mode", selection: $settings.lockBehavior) {
+                        ForEach(SettingsManager.LockBehavior.allCases) { behavior in
+                            Text(behavior.displayName).tag(behavior)
+                        }
+                    }
+                    .pickerStyle(.segmented)
                 } header: {
-                    Text("Clock Widget")
+                    Text("Lock Screen Mode")
                         .font(.headline)
                 }
                 .padding(.leading, 4)
+                
+                if settings.lockBehavior == .custom {
+                    Section {
+                        Toggle("Show Clock & Date on Lock Screen", isOn: $settings.showClockWidget)
+                    } header: {
+                        Text("Clock Widget")
+                            .font(.headline)
+                    }
+                    .padding(.leading, 4)
+                }
                 
                 Section {
                     Toggle("Show Title Bar & Status Tag", isOn: $settings.cliShowTitleBar)
