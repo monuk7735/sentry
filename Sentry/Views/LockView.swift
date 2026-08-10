@@ -19,6 +19,7 @@ struct LockView: View {
     @State private var currentDate = Date()
     @State private var verticalOffset: CGFloat = 0
     @State private var pulseState: Bool = false
+    @State private var isHoveringLockBtn: Bool = false
     
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
@@ -75,25 +76,45 @@ struct LockView: View {
                     }
                     
                     if tapCount >= 2 {
-                        VStack(spacing: 12) {
+                        VStack(spacing: 10) {
                             Text("Having trouble with Touch ID?")
                                 .font(.system(size: 15, weight: .medium))
                                 .foregroundColor(.white.opacity(0.7))
                             
-                            HStack(spacing: 6) {
-                                KeyView(label: "⌘")
-                                Text("+")
-                                    .foregroundColor(.white.opacity(0.5))
-                                    .font(.system(size: 16, weight: .semibold))
-                                KeyView(label: "⌃")
-                                Text("+")
-                                    .foregroundColor(.white.opacity(0.5))
-                                    .font(.system(size: 16, weight: .semibold))
-                                KeyView(label: "Q")
+                            Button(action: {
+                                lockManager.lockmacOS()
+                            }) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "lock.fill")
+                                        .font(.system(size: 14, weight: .semibold))
+                                    Text("Lock Mac")
+                                        .font(.system(size: 13, weight: .medium))
+                                }
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .background(Color.white.opacity(isHoveringLockBtn ? 0.25 : 0.15))
+                                .cornerRadius(20)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .stroke(Color.white.opacity(isHoveringLockBtn ? 0.4 : 0.2), lineWidth: 1)
+                                )
+                                .scaleEffect(isHoveringLockBtn ? 1.03 : 1.0)
+                                .animation(.easeInOut(duration: 0.15), value: isHoveringLockBtn)
                             }
+                            .buttonStyle(.plain)
+                            .onHover { hovering in
+                                isHoveringLockBtn = hovering
+                                if hovering {
+                                    NSCursor.pointingHand.push()
+                                } else {
+                                    NSCursor.pop()
+                                }
+                            }
+                            .padding(.top, 2)
                             
-                            Text("to lock system & stop Sentry")
-                                .font(.system(size: 13, weight: .regular))
+                            Text("to stop Sentry")
+                                .font(.system(size: 12, weight: .regular))
                                 .foregroundColor(.white.opacity(0.5))
                         }
                         .transition(.opacity.animation(.easeInOut(duration: 0.5)))
@@ -121,11 +142,6 @@ struct LockView: View {
                                 .font(.title3)
                                 .fontWeight(.medium)
                                 .foregroundColor(.orange)
-                            
-                            Text("Press Cmd + Ctrl + Q to Lock System")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                                .padding(.top, 4)
                         }
                     }
                 }

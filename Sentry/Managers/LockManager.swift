@@ -235,7 +235,7 @@ class LockManager: ObservableObject {
         }
     }
     
-    private func lockmacOS() {
+    func lockmacOS() {
         let frameworkPath = "/System/Library/PrivateFrameworks/login.framework/login"
         if let handle = dlopen(frameworkPath, RTLD_LAZY) {
             if let symbol = dlsym(handle, "SACLockScreenImmediate") {
