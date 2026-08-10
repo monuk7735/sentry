@@ -57,8 +57,7 @@ struct SentryApp: App {
                         lockManager.caffeineMode.toggle()
                     }
                 ) {
-                    Toggle("Keep Awake (Caffeine)", isOn: $lockManager.caffeineMode)
-                        .toggleStyle(.checkbox)
+                    Toggle("Caffeine Mode", isOn: $lockManager.caffeineMode)
                 }
                 .shortcutFromConfig(ShortcutHelper.loadIfSet(forKey: .caffeine))
 

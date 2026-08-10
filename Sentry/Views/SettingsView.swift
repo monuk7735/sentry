@@ -272,6 +272,37 @@ struct SettingsView: View {
                 )
             }
             
+            // Keep Awake System Sleep Prevention Card
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("Prevent System Sleep")
+                            .font(.system(size: 14, weight: .semibold))
+                        Text("Keeps Mac CPU & background tasks running continuously even if display turns off or lid is closed (pmset -a disablesleep 1).")
+                            .font(.system(size: 11))
+                            .foregroundColor(.secondary)
+                            .lineSpacing(2)
+                    }
+                    
+                    Spacer()
+                    
+                    Toggle("", isOn: $settings.caffeinePreventSystemSleep)
+                        .toggleStyle(.switch)
+                        .onChange(of: settings.caffeinePreventSystemSleep) { _ in
+                            LockManager.shared.updateCaffeineState()
+                        }
+                }
+            }
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(Color.primary.opacity(0.025))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                    )
+            )
+            
             // Instruction Banner
             HStack(spacing: 12) {
                 Image(systemName: "info.circle.fill")

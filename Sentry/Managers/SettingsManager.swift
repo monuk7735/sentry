@@ -32,6 +32,8 @@ class SettingsManager: ObservableObject {
     @AppStorage("cliShowTitleBar") var cliShowTitleBar: Bool = true
     @AppStorage("cliLineLimit") var cliLineLimit: Int = 10
     
+    @AppStorage("caffeinePreventSystemSleep") var caffeinePreventSystemSleep: Bool = true
+    
     @Published var selectedTab: SettingsTab = .shortcuts
     
     private init() {}

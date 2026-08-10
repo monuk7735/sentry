@@ -33,7 +33,8 @@ class LockManager: ObservableObject {
     private var isStarting = false
     
     private var lockAssertionID: IOPMAssertionID = 0
-    private var caffeineAssertionID: IOPMAssertionID = 0
+    private var caffeineDisplayAssertionID: IOPMAssertionID = 0
+    private var caffeineSystemAssertionID: IOPMAssertionID = 0
     
     private init() {
         DistributedNotificationCenter.default().addObserver(
@@ -326,16 +327,50 @@ class LockManager: ObservableObject {
         }
     }
     
-    private func updateCaffeineState() {
+    func updateCaffeineState() {
+        let settings = SettingsManager.shared
         if caffeineMode {
-            if caffeineAssertionID == 0 {
-                caffeineAssertionID = createAssertion(
+            // Display sleep prevention is ALWAYS enabled in Caffeine mode
+            if caffeineDisplayAssertionID == 0 {
+                caffeineDisplayAssertionID = createAssertion(
                     type: kIOPMAssertionTypeNoDisplaySleep,
-                    reason: "Sentry Caffeine Mode"
+                    reason: "Sentry Keep Awake Mode"
                 )
             }
+            
+            // Optional: System sleep prevention (disablesleep 1)
+            if settings.caffeinePreventSystemSleep {
+                if caffeineSystemAssertionID == 0 {
+                    caffeineSystemAssertionID = createAssertion(
+                        type: kIOPMAssertionTypePreventSystemSleep,
+                        reason: "Sentry Keep Awake Mode"
+                    )
+                }
+            } else {
+                releaseAssertion(&caffeineSystemAssertionID)
+            }
+            
+            if let activity = caffeineActivity {
+                ProcessInfo.processInfo.endActivity(activity)
+                caffeineActivity = nil
+            }
+            
+            var opts: ProcessInfo.ActivityOptions = [.idleDisplaySleepDisabled]
+            if settings.caffeinePreventSystemSleep {
+                opts.insert(.idleSystemSleepDisabled)
+            }
+            
+            caffeineActivity = ProcessInfo.processInfo.beginActivity(
+                options: opts,
+                reason: "Sentry Keep Awake Mode"
+            )
         } else {
-            releaseAssertion(&caffeineAssertionID)
+            releaseAssertion(&caffeineDisplayAssertionID)
+            releaseAssertion(&caffeineSystemAssertionID)
+            if let activity = caffeineActivity {
+                ProcessInfo.processInfo.endActivity(activity)
+                caffeineActivity = nil
+            }
         }
     }
     
