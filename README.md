@@ -4,7 +4,7 @@
 <h3 style="font-size: 2.5rem; letter-spacing: 1px;">Sentry</h3>
 <p style="font-size: 1.15rem; font-weight: 500;">
     <strong>Secure your workflow without stopping it.</strong><br>
-    Sentry allows you to "lock" your Mac effectively—preventing unauthorized access with a Kiosk-style shield—while keeping the system technically unlocked. This ensures that long-running tasks like <strong>compiling code, downloading large files, or rendering video</strong> continue uninterrupted in the background, which would otherwise be paused by the native macOS sleep/lock.
+    Sentry allows you to "lock" your Mac effectively—preventing unauthorized access with a Kiosk-style shield—while keeping the system technically unlocked. This ensures that long-running tasks like <strong>compiling code, downloading large files, or rendering video</strong> continue uninterrupted in the background, which would otherwise be paused by native macOS sleep.
   </p>
 
 <br/><br/>
@@ -31,19 +31,19 @@
 
 ## Features
 
-- **Prevent Sleep** - Keeps your Mac awake and active (disables idle sleep) while locked, ensuring background tasks continue uninterrupted.
-- **Caffeine Mode** - Toggle "Caffeine Mode" to keep your Mac awake even when not locked.
-- **Lock Screen Clock & Date** - Displays a modern, macOS-style clock and date widget on the lock screen (can be toggled in Settings).
-- **CLI Command Monitoring** - Pipe long-running logs and command outputs directly to the lock screen with the integrated `sentry-cli` tool.
+- **Caffeine Mode & System Sleep Prevention** - Prevents display sleep and optionally disables system CPU sleep (`pmset -a disablesleep 1`) natively without `sudo` privileges, keeping your long-running tasks active.
+- **Interactive Onboarding Welcome Guide** - Smooth 2-screen welcome flow showcasing core features with quick interactive setup buttons.
+- **Redesigned Settings & Aesthetic UI** - Modern translucent window styling with compact category tabs, live toggles, and terminal code snippets.
+- **Interactive Shortcut Recorder** - Record global hotkeys with live modifier key badges (`⌘`, `⌥`, `⌃`, `⇧`) and instant validation warnings.
+- **Lock Screen Clock & Date** - Displays a modern, macOS-style clock and date widget on the lock screen overlay.
+- **CLI Command Monitoring** - Pipe long-running logs and command outputs directly to the lock screen with the integrated `sentry-cli` companion.
 - **Kiosk-Style Security** - Hides the Dock, Menu Bar, and disables process switching (`Cmd+Tab`) while locked to prevent unauthorized access.
 - **Biometric Unlock** - Integrated directly with **Touch ID** for seamless, fast unlocking.
 - **Smart Fallback** - Detects when Touch ID is unavailable (e.g., Clamshell mode) and provides clear instructions to use standard system lock (`Cmd+Ctrl+Q`).
 - **Multi-Display Support** - Automatically detects and covers all connected displays, including new connections while locked.
-- **Visual Feedback** - Shake animations on interaction and smooth fade transitions.
 - **Resilient Focus** - Aggressively maintains focus to prevent being bypassed by system shortcuts or other apps.
-- **Menu Bar App** - Unobtrusive menu bar item for quick activation.
-- **Customizable Shortcuts** - Easily edit or disable global keyboard shortcuts.
-- **SwiftUI & AppKit** - built for modern macOS performance.
+- **Menu Bar App** - Unobtrusive menu bar extra for instant access to lock screen, caffeine mode, and settings.
+- **SwiftUI & AppKit** - Built natively for high performance on macOS.
 
 ## Global Shortcuts
 
@@ -54,14 +54,14 @@ Sentry works silently in the background with customizable global shortcuts. By d
 | **Option + Shift + L** | Activates **Sentry Lock**. |
 | **Option + Shift + K** | Toggles **Caffeine Mode**. |
 
-> **Note:** You can easily edit or disable these shortcuts at any time via Sentry's Settings.
+> **Note:** You can easily record new custom shortcuts or reset defaults via Sentry's interactive shortcut recorder in Settings.
 
 ## CLI Integration
 
-Sentry includes a lightweight command-line companion (`sentry-cli`) that allows piping logs, stdout, or running subcommands directly on your lock screen so you can monitor progress.
+Sentry includes a lightweight command-line companion (`sentry-cli`) that allows piping logs, stdout, or running subcommands directly on your lock screen so you can monitor progress in real-time.
 
 ### Installation
-Go to Sentry **Settings** and click **Install CLI Tool** to install it to `/usr/local/bin/sentry-cli`.
+Go to Sentry **Settings** → **CLI Tool** tab and click **Install CLI Tool** to link it to `/usr/local/bin/sentry-cli`.
 
 ### Examples
 * **Pipe stdout of a command:**
@@ -94,7 +94,7 @@ brew install --cask monuk7735/tap/sentry
 
 ### ⚠️ "Damaged" or "Unidentified Developer" Error?
 
-> I don't have an Apple Developer account yet, so the application will display a popup on the first launch.
+> If macOS displays a security warning on the first launch:
 
 **Option 1 (Recommended): Allow via System Settings**
 
@@ -109,30 +109,25 @@ brew install --cask monuk7735/tap/sentry
 xattr -cr /Applications/Sentry.app
 ```
 
-This command simply removes the "quarantine" flag that macOS places on apps downloaded from the internet, resolving the false error.
-
-- `xattr` : The utility to modify file attributes.
-- `-c` : Clears all attributes (removes the "quarantine" flag).
-- `-r` : Recursive (applies to all files inside the app bundle).
+This command simply removes the "quarantine" flag that macOS places on apps downloaded from the internet.
 
 ## Usage
 
 1. Launch **Sentry**.
-2. Lock your screen using the **Global Shortcut** `Option + Shift + L`, or click "Activate" in the menu bar.
-3. Your screen is now vigilant! 
-4. To toggle **Caffeine Mode** (keep system awake), use `Option + Shift + K`.
+2. Explore the interactive **Welcome Guide** to test core features.
+3. Lock your screen using the **Global Shortcut** (`Option + Shift + L`) or click "Lock Screen" in the menu bar.
+4. Toggle **Caffeine Mode** (`Option + Shift + K`) to prevent display & system sleep during long render/compile tasks.
 5. To unlock, simply use **Touch ID**.
-   - If Touch ID is not available, the app will guide you to secure the system manually.
 
 ## Roadmap
 
 - [x] ~~Implement Kiosk Mode (Sandboxed Input Capture).~~
 - [x] ~~Multi-Display Support with dynamic connection handling.~~
 - [x] ~~Touch ID Authentication.~~
-- [x] ~~Smart focus stealing to prevent app switching.~~
-- [x] ~~Touch ID Fallback UI.~~
-- [x] ~~Global keyboard shortcut for activation.~~
+- [x] ~~Global keyboard shortcut recording and live validation.~~
 - [x] ~~Lock screen clock widget and command progress monitoring.~~
+- [x] ~~Caffeine mode with system sleep prevention (`pmset -a disablesleep`).~~
+- [x] ~~Interactive 2-screen onboarding welcome guide.~~
 - [ ] Intruder selfie capture (Future).
 - [ ] Customizable lock screen backgrounds.
 
