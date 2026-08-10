@@ -26,6 +26,18 @@ struct SentryApp: App {
                 LockManager.shared.caffeineMode.toggle()
             }
         }
+        
+        #if DEBUG
+        let showWelcomeOnLaunch = true
+        #else
+        let showWelcomeOnLaunch = !UserDefaults.standard.bool(forKey: "hasSeenWelcome")
+        #endif
+        
+        if showWelcomeOnLaunch {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                WelcomeWindowManager.shared.show()
+            }
+        }
     }
     
     var body: some Scene {
@@ -35,7 +47,7 @@ struct SentryApp: App {
                 
                 Divider()
                 
-                Button("Activate") {
+                Button("Lock Screen") {
                     lockManager.lock()
                 }
                 .shortcutFromConfig(ShortcutHelper.loadIfSet(forKey: .lock))
@@ -45,17 +57,23 @@ struct SentryApp: App {
                         lockManager.caffeineMode.toggle()
                     }
                 ) {
-                    Toggle("Caffeine", isOn: $lockManager.caffeineMode)
+                    Toggle("Keep Awake (Caffeine)", isOn: $lockManager.caffeineMode)
                         .toggleStyle(.checkbox)
                 }
                 .shortcutFromConfig(ShortcutHelper.loadIfSet(forKey: .caffeine))
 
                 Divider()
 
+                Button("Welcome Guide") {
+                    WelcomeWindowManager.shared.show()
+                }
+
                 Button("Settings") {
                     SettingsWindowManager.shared.show()
                 }
                 .keyboardShortcut(",", modifiers: .command)
+
+                Divider()
 
                 Button("Quit") {
                     NSApplication.shared.terminate(nil)
