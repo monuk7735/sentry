@@ -178,10 +178,10 @@ struct WelcomeView: View {
         .frame(width: 680, height: 500)
     }
     
-    // MARK: - Screen 1: Overview
+    // MARK: - Screen 1: Overview (Static Non-Clickable Preview)
     private var overviewScreen: some View {
         VStack(spacing: 20) {
-            // Cute Hero Header
+            // Hero Header
             VStack(spacing: 12) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 20, style: .continuous)
@@ -214,7 +214,7 @@ struct WelcomeView: View {
             }
             .padding(.top, 4)
             
-            // 2x2 Overview Feature Cards Grid
+            // 2x2 Overview Feature Cards Grid (Static Non-Clickable)
             VStack(spacing: 12) {
                 HStack(spacing: 14) {
                     OverviewCard(
@@ -277,7 +277,7 @@ struct WelcomeView: View {
                         description: "Configure key combinations to lock screen or toggle Keep Awake.",
                         actionTitle: "Configure",
                         action: {
-                            SettingsWindowManager.shared.show()
+                            SettingsWindowManager.shared.show(tab: .shortcuts)
                         }
                     )
                     
@@ -309,11 +309,11 @@ struct WelcomeView: View {
                     ActionCard(
                         icon: "gearshape.fill",
                         iconColor: .gray,
-                        title: "Settings",
+                        title: "Customize Settings",
                         description: "Adjust lock behavior, clock widgets, and CLI line limits.",
                         actionTitle: "Settings",
                         action: {
-                            SettingsWindowManager.shared.show()
+                            SettingsWindowManager.shared.show(tab: .lockScreen)
                         }
                     )
                 }

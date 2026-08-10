@@ -12,12 +12,21 @@ final class SettingsWindowController: NSWindowController {
 
     convenience init() {
         let hostingController = NSHostingController(rootView: SettingsView())
-        let window = NSPanel(contentViewController: hostingController)
+        let window = NSPanel(
+            contentRect: NSRect(x: 0, y: 0, width: 680, height: 540),
+            styleMask: [.titled, .closable, .fullSizeContentView],
+            backing: .buffered,
+            defer: false
+        )
         
         window.title = "Sentry Settings"
-        window.styleMask = [.titled, .closable, .resizable, .fullSizeContentView]
+        window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
+        window.isMovableByWindowBackground = true
         window.isReleasedWhenClosed = false
         window.hidesOnDeactivate = false
+        window.contentViewController = hostingController
+        window.setContentSize(NSSize(width: 680, height: 540))
         window.center()
 
         self.init(window: window)
@@ -30,6 +39,10 @@ final class SettingsWindowController: NSWindowController {
         window?.orderFrontRegardless()
         window?.makeKeyAndOrderFront(nil)
     }
+    
+    func closeWindow() {
+        window?.close()
+    }
 }
 
 final class SettingsWindowManager {
@@ -39,12 +52,19 @@ final class SettingsWindowManager {
     
     private init() {}
     
-    func show() {
+    func show(tab: SettingsTab = .shortcuts) {
         DispatchQueue.main.async {
+            SettingsManager.shared.selectedTab = tab
             if self.controller == nil {
                 self.controller = SettingsWindowController()
             }
             self.controller?.show()
+        }
+    }
+    
+    func close() {
+        DispatchQueue.main.async {
+            self.controller?.closeWindow()
         }
     }
 }
