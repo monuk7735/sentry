@@ -10,7 +10,6 @@ import Combine
 
 enum SettingsTab: String, CaseIterable, Identifiable {
     case shortcuts = "Shortcuts"
-    case lockScreen = "Lock Screen"
     case cli = "CLI Tool"
     
     var id: String { rawValue }
@@ -18,7 +17,6 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     var iconName: String {
         switch self {
         case .shortcuts: return "keyboard.fill"
-        case .lockScreen: return "lock.fill"
         case .cli: return "terminal.fill"
         }
     }
@@ -118,19 +116,20 @@ struct SettingsView: View {
                     .padding(.top, 14)
                 
                 // Tab Content Area
-                ZStack {
-                    switch settings.selectedTab {
-                    case .shortcuts:
-                        shortcutsTab
-                    case .lockScreen:
-                        lockScreenTab
-                    case .cli:
-                        cliTab
+                ScrollView(.vertical, showsIndicators: false) {
+                    ZStack {
+                        switch settings.selectedTab {
+                        case .shortcuts:
+                            shortcutsTab
+                        case .cli:
+                            cliTab
+                        }
                     }
+                    .padding(.vertical, 2)
                 }
                 .frame(maxHeight: .infinity)
                 .padding(.horizontal, 36)
-                .padding(.vertical, 14)
+                .padding(.vertical, 8)
                 
                 // Bottom Done Action Button
                 VStack(spacing: 0) {
@@ -223,7 +222,7 @@ struct SettingsView: View {
                         }
                     }
                     
-                    ShortcutRecorderView(shortcut: $lockShortcut)
+                    ShortcutRecorderView(shortcut: $lockShortcut, title: "Lock Screen Shortcut")
                         .padding(.top, 4)
                 }
                 .padding(14)
@@ -258,7 +257,7 @@ struct SettingsView: View {
                         }
                     }
                     
-                    ShortcutRecorderView(shortcut: $caffeineShortcut)
+                    ShortcutRecorderView(shortcut: $caffeineShortcut, title: "Keep Awake Shortcut")
                         .padding(.top, 4)
                 }
                 .padding(14)
@@ -513,8 +512,6 @@ struct SettingsView: View {
                     .font(.system(size: 11))
                     .foregroundColor(.green)
             }
-            
-            Spacer()
         }
     }
     

@@ -310,10 +310,10 @@ struct WelcomeView: View {
                         icon: "gearshape.fill",
                         iconColor: .gray,
                         title: "Customize Settings",
-                        description: "Adjust lock behavior, clock widgets, and CLI line limits.",
+                        description: "Adjust keyboard shortcuts, caffeine mode, and CLI settings.",
                         actionTitle: "Settings",
                         action: {
-                            SettingsWindowManager.shared.show(tab: .lockScreen)
+                            SettingsWindowManager.shared.show(tab: .shortcuts)
                         }
                     )
                 }
